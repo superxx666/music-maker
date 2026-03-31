@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ING Music Maker - 专业音乐制作</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="5.5" cy="17.5" r="2.5"/>
+                    <circle cx="17.5" cy="15.5" r="2.5"/>
+                    <path d="M8 17V5l12-2v12"/>
+                </svg>
+                <span>ING Music Maker</span>
+            </div>
+            <div class="project-name">
+                <input type="text" id="projectName" value="未命名项目" class="project-input">
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="exportBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    导出
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="transport-controls">
+                    <button class="transport-btn" id="playBtn" title="播放 (Space)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5,3 19,12 5,21"/>
+                        </svg>
+                    </button>
+                    <button class="transport-btn" id="stopBtn" title="停止">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="4" y="4" width="16" height="16" rx="2"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="time-display">
+                    <span class="current-time" id="currentTime">00:00.000</span>
+                    <span class="time-separator">/</span>
+                    <span class="total-time" id="totalTime">05:00.000</span>
+                </div>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoomOutBtn" title="缩小">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            <line x1="8" y1="11" x2="14" y2="11"/>
+                        </svg>
+                    </button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button class="zoom-btn" id="zoomInBtn" title="放大">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            <line x1="11" y1="8" x2="11" y2="14"/>
+                            <line x1="8" y1="11" x2="14" y2="11"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="bpm-control">
+                    <label>BPM</label>
+                    <input type="number" id="bpmInput" value="120" min="20" max="300" class="bpm-input">
+                </div>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-ruler" id="timelineRuler">
+                    <canvas id="rulerCanvas"></canvas>
+                </div>
+                <div class="playhead" id="playhead">
+                    <div class="playhead-handle" id="playheadHandle"></div>
+                </div>
+            </div>
+
+            <div class="tracks-container" id="tracksContainer">
+                <div class="tracks-list" id="tracksList">
+                </div>
+                <div class="timeline-scroll" id="timelineScroll">
+                    <div class="timeline-content" id="timelineContent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="add-track-panel">
+            <div class="panel-left">
+                <button class="btn btn-primary add-track-btn" id="addTrackBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    添加音轨
+                </button>
+            </div>
+            <div class="panel-center">
+                <button class="btn btn-secondary sequencer-btn" id="openSequencerBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="2" width="20" height="20" rx="2"/>
+                        <line x1="6" y1="6" x2="6" y2="18"/>
+                        <line x1="10" y1="6" x2="10" y2="18"/>
+                        <line x1="14" y1="6" x2="14" y2="18"/>
+                        <line x1="18" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    节拍音序器
+                </button>
+            </div>
+            <div class="panel-right">
+                <button class="btn btn-secondary record-btn" id="openRecordBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="6" fill="#ef4444"/>
+                    </svg>
+                    录音
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="record-page" id="recordPage">
+        <div class="record-header">
+            <button class="btn btn-secondary back-btn" id="backFromRecord">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12,19 5,12 12,5"/>
+                </svg>
+                返回
+            </button>
+            <h2 class="record-title">录音工作室</h2>
+            <div class="record-controls-header">
+                <button class="btn btn-primary" id="saveRecordingBtn" disabled>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17,21 17,13 7,13 7,21"/>
+                        <polyline points="7,3 7,8 15,8"/>
+                    </svg>
+                    保存录音
+                </button>
+            </div>
+        </div>
+        <div class="record-body">
+            <div class="record-main">
+                <div class="waveform-display" id="waveformDisplay">
+                    <canvas id="recordWaveform"></canvas>
+                    <div class="record-time" id="recordTime">00:00.000</div>
+                </div>
+                <div class="record-controls">
+                    <button class="record-circle-btn" id="recordCircleBtn" title="开始录音">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="6"/>
+                        </svg>
+                    </button>
+                    <button class="play-record-btn" id="playRecordBtn" disabled title="播放录音">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5,3 19,12 5,21"/>
+                        </svg>
+                    </button>
+                    <button class="stop-record-btn" id="stopRecordBtn" disabled title="停止">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="4" y="4" width="16" height="16" rx="2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="record-sidebar">
+                <div class="recordings-list-header">
+                    <h3>录音列表</h3>
+                    <span id="recordingCount">0 个录音</span>
+                </div>
+                <div class="recordings-list" id="recordingsList">
+                    <div class="empty-recordings">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="6"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <p>暂无录音</p>
+                        <p>点击红色按钮开始录音</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sequencer-page" id="sequencerPage">
+            <div class="sequencer-header">
+                <button class="btn btn-secondary back-btn" id="backToMain">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12,19 5,12 12,5"/>
+                    </svg>
+                    返回
+                </button>
+                <h2 class="sequencer-title">节拍音序器</h2>
+                <div class="sequencer-controls">
+                    <div class="bpm-control">
+                        <label>BPM</label>
+                        <input type="number" id="seqBpm" value="120" min="40" max="300" class="bpm-input">
+                    </div>
+                    <button class="btn btn-secondary" id="seqImportSoundBtn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17,8 12,3 7,8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        导入音效
+                    </button>
+                    <button class="btn btn-secondary" id="seqClearBtn">清空</button>
+                    <button class="btn btn-primary" id="seqExportBtn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7,10 12,15 17,10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        导出
+                    </button>
+                </div>
+            </div>
+            <div class="sequencer-body">
+                <div class="sequencer-sidebar">
+                    <div class="sound-labels" id="soundLabels"></div>
+                    <button class="add-sound-btn" id="addSoundBtn">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加音效行
+                    </button>
+                </div>
+                <div class="sequencer-grid-container">
+                    <div class="step-indicators" id="stepIndicators"></div>
+                    <div class="sequencer-grid" id="sequencerGrid"></div>
+                </div>
+            </div>
+            <div class="sequencer-footer">
+                <div class="transport-controls">
+                    <button class="transport-btn" id="seqPlayBtn" title="播放">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5,3 19,12 5,21"/>
+                        </svg>
+                    </button>
+                    <button class="transport-btn" id="seqStopBtn" title="停止">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="4" y="4" width="16" height="16" rx="2"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="step-count-control">
+                    <label>步数</label>
+                    <select id="stepCount" class="step-select">
+                        <option value="8">8</option>
+                        <option value="16" selected>16</option>
+                        <option value="32">32</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <input type="file" id="seqSoundFileInput" accept="audio/*" style="display: none;">
+
+    <div class="modal" id="trackModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>音轨设置</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+        </div>
+    </div>
+
+    <div class="context-menu" id="contextMenu">
+        <ul class="context-menu-list">
+            <li data-action="cut"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>裁剪</li>
+            <li data-action="copy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>复制片段</li>
+            <li data-action="delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>删除</li>
+            <li class="divider"></li>
+            <li data-action="split"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="22"/><path d="M2 12h8"/><path d="M14 12h8"/></svg>分割</li>
+        </ul>
+    </div>
+
+    <div class="context-menu" id="trackContextMenu">
+        <ul class="context-menu-list">
+            <li data-action="import"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>导入音频</li>
+            <li data-action="paste"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>粘贴片段</li>
+            <li data-action="delete-all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>删除全部音频</li>
+            <li class="divider"></li>
+            <li data-action="cut" class="clip-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>裁剪</li>
+            <li data-action="copy" class="clip-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>复制片段</li>
+            <li data-action="delete" class="clip-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>删除片段</li>
+            <li class="divider"></li>
+            <li data-action="add-track"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加新音轨</li>
+        </ul>
+    </div>
+
+    <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
+
+    <script src="app.js"></script>
+</body>
+</html>
